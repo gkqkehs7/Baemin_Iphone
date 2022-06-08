@@ -1,3 +1,4 @@
+import {useNavigation, NavigationProp} from '@react-navigation/native';
 import React, {useCallback} from 'react';
 import {
   Dimensions,
@@ -8,15 +9,13 @@ import {
   Text,
   View,
 } from 'react-native';
-
-import {useNavigation} from '@react-navigation/native';
+import {LoggedInParamList} from '../../AppInner';
 
 const Cateogories = () => {
-  const navigation = useNavigation();
-
+  const navigation = useNavigation<NavigationProp<LoggedInParamList>>();
   const toCategoryPage = useCallback(() => {
-    navigation.navigate('CategoryPage');
-  }, []);
+    navigation.navigate('StoresPage');
+  }, [navigation]);
 
   return (
     <View style={styles.container}>
@@ -38,7 +37,6 @@ const Cateogories = () => {
 
 const styles = StyleSheet.create({
   container: {
-    backgroundColor: 'green',
     justifyContent: 'center',
     alignItems: 'center',
     paddingVertical: 10,

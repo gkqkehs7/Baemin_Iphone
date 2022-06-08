@@ -7,10 +7,9 @@ import {
   TextInput,
   View,
   ActivityIndicator,
-  StatusBar,
 } from 'react-native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
-// import EncryptedStorage from 'react-native-encrypted-storage';
+import EncryptedStorage from 'react-native-encrypted-storage';
 // import DismissKeyboardView from '../components/DismissKeyboardView';
 import axios, {AxiosError} from 'axios';
 import Config from 'react-native-config';
@@ -50,23 +49,26 @@ function SignInPage({navigation}: SignInScreenProps) {
     }
     try {
       setLoading(true);
-      const response = await axios.post(`${Config.API_URL}/login`, {
+      console.log(Config.API_URL);
+      const response = await axios.post(`${Config.API_URL}/api/user/login`, {
         email,
         password,
       });
+
       console.log(response.data);
       Alert.alert('알림', '로그인 되었습니다.');
+
       dispatch(
         userSlice.actions.setUser({
-          name: response.data.data.name,
-          email: response.data.data.email,
-          accessToken: response.data.data.accessToken,
+          nickname: response.data.nickname,
+          email: response.data.email,
+          accessToken: response.data.accessToken,
         }),
       );
-      //   await EncryptedStorage.setItem(
-      //     'refreshToken',
-      //     response.data.data.refreshToken,
-      //   );
+      await EncryptedStorage.setItem(
+        'refreshToken',
+        response.data.refreshToken,
+      );
     } catch (error) {
       const errorResponse = (error as AxiosError).response;
       if (errorResponse) {

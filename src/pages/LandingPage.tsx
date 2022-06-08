@@ -4,7 +4,6 @@ import {
   Text,
   Pressable,
   StyleSheet,
-  ScrollView,
   TextInput,
   SafeAreaView,
 } from 'react-native';
@@ -15,7 +14,6 @@ import Entypo from 'react-native-vector-icons/Entypo';
 import Feather from 'react-native-vector-icons/Feather';
 import Cateogories from '../components/Categories';
 import CategoriesRecommend from '../components/CategoriesRecommend';
-import TopSlick from '../components/TopSlick';
 
 function LandingPage() {
   return (
@@ -38,7 +36,7 @@ function LandingPage() {
         </View>
       </View>
 
-      <ScrollView>
+      <View>
         <View style={styles.search}>
           <TextInput style={styles.searchInput} />
           <Feather
@@ -48,10 +46,10 @@ function LandingPage() {
             color={'#00dbc5'}
           />
         </View>
-        <TopSlick />
+
         <CategoriesRecommend />
         <Cateogories />
-      </ScrollView>
+      </View>
     </SafeAreaView>
   );
 }

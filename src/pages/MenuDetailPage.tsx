@@ -1,5 +1,5 @@
-import {useNavigation, NavigationProp} from '@react-navigation/native';
-import React from 'react';
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
+import React, {useCallback} from 'react';
 import {
   Dimensions,
   ImageBackground,
@@ -8,12 +8,36 @@ import {
   Text,
   View,
 } from 'react-native';
+import {LoggedInParamList} from '../../AppInner';
+import userSlice from '../slices/user';
+import {useAppDispatch} from '../store';
 
-const MenuDetailPage = ({route}) => {
-  const navigation = useNavigation<NavigationProp>();
-  console.log('menudaaaa', route.params.menuData);
+type MenuDetailPageProps = NativeStackScreenProps<
+  LoggedInParamList,
+  'MenuDetailPage'
+>;
 
+const MenuDetailPage = ({navigation, route}: MenuDetailPageProps) => {
   const {menuData} = route.params;
+  const {storeData} = route.params;
+  const dispatch = useAppDispatch();
+  const menuToCart = useCallback(() => {
+    dispatch(
+      userSlice.actions.menuToCart({
+        menuId: menuData.id,
+        StoreId: menuData.StoreId,
+        explanation: menuData.explanation,
+        menuName: menuData.menuName,
+        price: menuData.price,
+        menuImg: menuData.menuImg,
+        PriceToOrder: storeData.PriceToOrder,
+        orderTime: storeData.orderTime,
+        orderTip: storeData.orderTip,
+        storeName: storeData.storeName,
+      }),
+    );
+    navigation.goBack();
+  }, [navigation, dispatch, menuData, storeData]);
   return (
     <View style={{backgroundColor: 'white', flex: 1}}>
       <ImageBackground
@@ -29,11 +53,7 @@ const MenuDetailPage = ({route}) => {
       </View>
 
       <View style={{alignItems: 'center'}}>
-        <Pressable
-          style={styles.cartBtn}
-          onPress={() => {
-            navigation.goBack();
-          }}>
+        <Pressable style={styles.cartBtn} onPress={menuToCart}>
           <Text style={styles.btnText}>장바구니 담기</Text>
         </Pressable>
       </View>

@@ -8,27 +8,31 @@ import {
   Text,
   View,
 } from 'react-native';
-
-export type ImenuData = {
-  menuName: string;
-  explanation: string;
-  price: number;
-  menuImg?: string;
-};
+import {RootState} from '../../store/reducer';
+import {useSelector} from 'react-redux';
+import {IStoreData, IMenuData} from '../../types/db';
 
 interface Props {
-  menuData: ImenuData[];
+  menuData: IMenuData[];
+  storeData: IStoreData;
 }
-const Menues: FC<Props> = ({menuData}) => {
+const Menues: FC<Props> = ({menuData, storeData}) => {
   const navigation = useNavigation<NavigationProp>();
+
+  const cart = useSelector((state: RootState) => state.user.cart);
+  console.log('Cart', cart);
   return (
     <>
       {menuData?.map(item => (
         <Pressable
+          key={item.menuName}
           style={styles.menu}
           onPress={() => {
             console.log('item', item);
-            navigation.navigate('MenuDetailPage', {menuData: item});
+            navigation.navigate('MenuDetailPage', {
+              menuData: item,
+              storeData: storeData,
+            });
           }}>
           <View>
             <Text style={styles.menuName}>{item.menuName}</Text>

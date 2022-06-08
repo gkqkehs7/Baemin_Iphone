@@ -1,5 +1,5 @@
 import React from 'react';
-import {Dimensions, Image, StyleSheet, Text, View} from 'react-native';
+import {Dimensions, StyleSheet, Text, View} from 'react-native';
 
 import Slick from 'react-native-slick';
 

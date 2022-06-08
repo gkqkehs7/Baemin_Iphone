@@ -1,4 +1,4 @@
-import {ParamListBase, RouteProp} from '@react-navigation/native';
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import axios from 'axios';
 import React, {useCallback, useEffect, useState} from 'react';
 import {
@@ -13,34 +13,75 @@ import {
 
 import Config from 'react-native-config';
 import AntDesign from 'react-native-vector-icons/AntDesign';
+import {useSelector} from 'react-redux';
+import {LoggedInParamList} from '../../AppInner';
 import Menues from '../components/StorePage/Menues';
+import {RootState} from '../store/reducer';
 
-type Props = {
-  route: RouteProp<ParamListBase>;
-};
-const StorePage = ({route}: Props) => {
+type StorePageProps = NativeStackScreenProps<LoggedInParamList, 'StorePage'>;
+const StorePage = ({route, navigation}: StorePageProps) => {
+  const accessToken = useSelector((state: RootState) => state.user.accessToken);
+
   const {storeId} = route.params;
   const [storeData, setStoreData] = useState({
     PriceToOrder: 0,
     orderTime: '',
     orderTip: '',
     menuImg: '',
+    storeName: '',
+    id: 0,
   });
   const [menuData, setMenuData] = useState([]);
-
   const [isFollow, setIsFollow] = useState(false);
+
+  console.log(isFollow);
   useEffect(() => {
     axios
-      .get(`${Config.API_URL}/api/store/getStore/${storeId}`)
+      .get(`${Config.API_URL}/api/store/getStore/${storeId}`, {
+        headers: {authorization: `${accessToken}`},
+      })
       .then(response => {
         setStoreData(response.data.store);
         setMenuData(response.data.menu);
+        setIsFollow(response.data.isFollow);
       });
-  }, [storeId]);
+  }, [storeId, accessToken]);
 
-  const follow = useCallback(() => {
-    setIsFollow(prev => !prev);
-  }, []);
+  console.log(storeData);
+  const follow = useCallback(async () => {
+    if (isFollow) {
+      await axios
+        .post(
+          `${Config.API_URL}/api/user/unfollowStore`,
+          {
+            storeId: storeData.id,
+          },
+          {
+            headers: {authorization: `${accessToken}`},
+          },
+        )
+        .then(response => {
+          setIsFollow(prev => !prev);
+          console.log(response.data);
+        });
+    } else {
+      await axios
+        .post(
+          `${Config.API_URL}/api/user/followStore`,
+          {
+            storeId: storeData.id,
+          },
+          {
+            headers: {authorization: `${accessToken}`},
+          },
+        )
+        .then(response => {
+          setIsFollow(prev => !prev);
+          console.log(response.data);
+        });
+    }
+  }, [accessToken, storeData, isFollow]);
+
   return (
     <View>
       <ScrollView showsVerticalScrollIndicator={false}>
@@ -52,7 +93,7 @@ const StorePage = ({route}: Props) => {
         <View style={{backgroundColor: 'white', marginBottom: 15}}>
           <View style={{alignItems: 'center', height: 150}}>
             <View style={styles.logoContainer}>
-              <Text style={styles.storeName}>가게이름</Text>
+              <Text style={styles.storeName}>{storeData.storeName}</Text>
 
               <View style={styles.star}>
                 <AntDesign name="staro" size={25} />
@@ -97,12 +138,16 @@ const StorePage = ({route}: Props) => {
           </View>
         </View>
 
-        <Menues menuData={menuData} />
+        <Menues menuData={menuData} storeData={storeData} />
       </ScrollView>
 
-      <View style={styles.cartBtn}>
+      <Pressable
+        style={styles.cartBtn}
+        onPress={() => {
+          navigation.navigate('CartPage');
+        }}>
         <AntDesign name="shoppingcart" size={25} color="white" />
-      </View>
+      </Pressable>
     </View>
   );
 };
