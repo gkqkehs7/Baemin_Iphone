@@ -15,6 +15,7 @@ import {useSelector} from 'react-redux';
 import {RootState} from '../store/reducer';
 import axios from 'axios';
 import Config from 'react-native-config';
+import {ICartData} from '../types/slice';
 
 type PayPageProps = NativeStackScreenProps<LoggedInParamList, 'PayPage'>;
 
@@ -24,13 +25,27 @@ const PayPage = ({navigation, route}: PayPageProps) => {
 
   const {totalPrice} = route.params;
 
+  console.log(cart);
   const payAll = useCallback(async () => {
+    let menuIds: number[] = [];
+    cart.forEach((item: ICartData) => {
+      menuIds.push(item.menuId);
+    });
+
+    console.log(accessToken);
+
     await axios
-      .post(`${Config.API_URL}/api/history/pay`, {
-        headers: {authorization: `${accessToken}`},
-        totalPrice: totalPrice,
-        storeId: cart[0]?.StoreId,
-      })
+      .post(
+        `${Config.API_URL}/api/user/pay`,
+        {
+          totalPrice: totalPrice,
+          storeId: cart[0]?.StoreId,
+          menuIds: menuIds.join(','),
+        },
+        {
+          headers: {authorization: `${accessToken}`},
+        },
+      )
       .then(response => {
         console.log(response);
       });
@@ -51,7 +66,7 @@ const PayPage = ({navigation, route}: PayPageProps) => {
       </View>
 
       <View style={{flex: 1, alignItems: 'center', justifyContent: 'flex-end'}}>
-        <Pressable style={styles.cartBtn}>
+        <Pressable style={styles.cartBtn} onPress={payAll}>
           <Text style={styles.btnText}>카카오페이로 결제하기</Text>
         </Pressable>
       </View>
