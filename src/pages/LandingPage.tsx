@@ -14,8 +14,15 @@ import Entypo from 'react-native-vector-icons/Entypo';
 import Feather from 'react-native-vector-icons/Feather';
 import Cateogories from '../components/Categories';
 import CategoriesRecommend from '../components/CategoriesRecommend';
+import {LoggedInParamList} from '../../AppInner';
+import {NativeStackScreenProps} from '@react-navigation/native-stack';
 
-function LandingPage() {
+type LandingPageProps = NativeStackScreenProps<
+  LoggedInParamList,
+  'LandingPage'
+>;
+
+function LandingPage({navigation}: LandingPageProps) {
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.header}>
@@ -50,6 +57,13 @@ function LandingPage() {
         <CategoriesRecommend />
         <Cateogories />
       </View>
+
+      <Pressable
+        onPress={() => {
+          navigation.navigate('HistoryPage');
+        }}>
+        <Text>주문 내역</Text>
+      </Pressable>
     </SafeAreaView>
   );
 }

@@ -22,6 +22,7 @@ import SignUpPage from './src/pages/SignUpPage';
 import CartPage from './src/pages/CartPage';
 import StoresPage from './src/pages/StoresPage';
 import PayPage from './src/pages/PayPage';
+import HistoryPage from './src/pages/Historypage';
 
 const Stack = createNativeStackNavigator();
 
@@ -44,6 +45,7 @@ export type LoggedInParamList = {
   PayPage: {
     totalPrice: number;
   };
+  HistoryPage: undefined;
 };
 
 function AppInner() {
@@ -167,6 +169,7 @@ function AppInner() {
           <Stack.Screen name="MenuDetailPage" component={MenuDetailPage} />
           <Stack.Screen name="CartPage" component={CartPage} />
           <Stack.Screen name="PayPage" component={PayPage} />
+          <Stack.Screen name="HistoryPage" component={HistoryPage} />
         </Stack.Navigator>
       ) : (
         <Stack.Navigator
