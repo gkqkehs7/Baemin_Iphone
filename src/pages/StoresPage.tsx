@@ -16,6 +16,8 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import {LoggedInParamList} from '../../AppInner';
 
 import {IStoreData} from '../types/db';
+import {useSelector} from 'react-redux';
+import {RootState} from '../store/reducer';
 // import {useAppDispatch} from '../../store';
 // import storeSlice from '../../slices/store';
 
@@ -24,6 +26,7 @@ interface Item {
 }
 const StoresPage = () => {
   const navigation = useNavigation<NavigationProp<LoggedInParamList>>();
+  const cart = useSelector((state: RootState) => state.user.cart);
 
   const [storeData, setStoreData] = useState([]);
   useEffect(() => {
@@ -70,6 +73,12 @@ const StoresPage = () => {
         onPress={() => {
           navigation.navigate('CartPage');
         }}>
+        {cart.length > 0 && (
+          <View style={styles.cartNum}>
+            <Text style={styles.cartNumText}>{cart.length}</Text>
+          </View>
+        )}
+
         <AntDesign name="shoppingcart" size={25} color="white" />
       </Pressable>
     </SafeAreaView>
@@ -128,6 +137,21 @@ const styles = StyleSheet.create({
     borderRadius: 40,
     right: 20,
     bottom: 40,
+  },
+  cartNum: {
+    position: 'absolute',
+    bottom: 30,
+    left: 30,
+    backgroundColor: 'white',
+    width: 20,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 30,
+    zIndex: 99,
+  },
+  cartNumText: {
+    color: '#00dbc5',
   },
 });
 

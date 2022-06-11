@@ -21,6 +21,9 @@ import {RootState} from '../store/reducer';
 type StorePageProps = NativeStackScreenProps<LoggedInParamList, 'StorePage'>;
 const StorePage = ({route, navigation}: StorePageProps) => {
   const accessToken = useSelector((state: RootState) => state.user.accessToken);
+  const cart = useSelector((state: RootState) => state.user.cart);
+
+  console.log(cart.length);
 
   const {storeId} = route.params;
   const [storeData, setStoreData] = useState({
@@ -146,6 +149,12 @@ const StorePage = ({route, navigation}: StorePageProps) => {
         onPress={() => {
           navigation.navigate('CartPage');
         }}>
+        {cart.length > 0 && (
+          <View style={styles.cartNum}>
+            <Text style={styles.cartNumText}>{cart.length}</Text>
+          </View>
+        )}
+
         <AntDesign name="shoppingcart" size={25} color="white" />
       </Pressable>
     </View>
@@ -223,6 +232,21 @@ const styles = StyleSheet.create({
     marginVertical: 5,
   },
 
+  cartNum: {
+    position: 'absolute',
+    bottom: 30,
+    left: 30,
+    backgroundColor: 'white',
+    width: 20,
+    height: 20,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 30,
+    zIndex: 99,
+  },
+  cartNumText: {
+    color: '#00dbc5',
+  },
   cartBtn: {
     position: 'absolute',
     width: 60,

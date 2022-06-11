@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useEffect, useState} from 'react';
 import {
   Pressable,
   StyleSheet,
@@ -47,6 +47,9 @@ const HistoryPage = ({navigation}: HistoryPageProps) => {
   const renderItem = ({item}) => {
     const date = new Date(item.time);
     const today = new Date();
+
+    const menuNum = item.menuIds.split(',').length;
+
     return (
       <View style={styles.history}>
         <View style={styles.historyTop}>
@@ -60,9 +63,15 @@ const HistoryPage = ({navigation}: HistoryPageProps) => {
             </Text>
           )}
 
-          <View style={styles.toDetail}>
+          <Pressable
+            style={styles.toDetail}
+            onPress={() => {
+              navigation.navigate('HistoryDetailPage', {
+                historyId: item.historyId,
+              });
+            }}>
             <Text style={styles.toDetailText}>주문상세</Text>
-          </View>
+          </Pressable>
         </View>
 
         <View style={styles.historyBottom}>
@@ -77,7 +86,15 @@ const HistoryPage = ({navigation}: HistoryPageProps) => {
               <AntDesign name="right" style={styles.toStoreIcon} />
             </Pressable>
 
-            <Text style={styles.repMenu}>{item.repMenuName} 외 1개</Text>
+            {menuNum > 1 ? (
+              <Text style={styles.repMenu}>
+                {item.repMenuName} 외 {menuNum - 1}개 {item.totalPrice}원
+              </Text>
+            ) : (
+              <Text style={styles.repMenu}>
+                {item.repMenuName} {item.totalPrice}원
+              </Text>
+            )}
           </View>
         </View>
       </View>
