@@ -7,18 +7,18 @@ import {
   SafeAreaView,
   Dimensions,
   Image,
+  FlatList,
 } from 'react-native';
-
-import Ionicons from 'react-native-vector-icons/Ionicons';
-
-import AntDesign from 'react-native-vector-icons/AntDesign';
+import axios from 'axios';
+import Config from 'react-native-config';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
+
 import {LoggedInParamList} from '../../AppInner';
 import {useSelector} from 'react-redux';
 import {RootState} from '../store/reducer';
-import axios from 'axios';
-import Config from 'react-native-config';
-import {FlatList} from 'react-native-gesture-handler';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import Octicons from 'react-native-vector-icons/Octicons';
 
 type HistoryPageProps = NativeStackScreenProps<
   LoggedInParamList,
@@ -51,52 +51,68 @@ const HistoryPage = ({navigation}: HistoryPageProps) => {
     const menuNum = item.menuIds.split(',').length;
 
     return (
-      <View style={styles.history}>
-        <View style={styles.historyTop}>
-          {today.getFullYear() === date.getFullYear() ? (
-            <Text style={styles.passedDate}>
-              {date.getMonth()}월 {date.getDay()}일
-            </Text>
-          ) : (
-            <Text style={styles.passedDate}>
-              {date.getFullYear()}일 {date.getMonth()}월 {date.getDay()}일
-            </Text>
-          )}
-
-          <Pressable
-            style={styles.toDetail}
-            onPress={() => {
-              navigation.navigate('HistoryDetailPage', {
-                historyId: item.historyId,
-              });
-            }}>
-            <Text style={styles.toDetailText}>주문상세</Text>
-          </Pressable>
-        </View>
-
-        <View style={styles.historyBottom}>
-          <Image
-            style={styles.storeImg}
-            source={require('../assets/bbq_chicken.png')}
-          />
-
-          <View style={styles.historyBottomRight}>
-            <Pressable style={styles.toStore}>
-              <Text style={styles.toStoreText}>{item.storeName}</Text>
-              <AntDesign name="right" style={styles.toStoreIcon} />
-            </Pressable>
-
-            {menuNum > 1 ? (
-              <Text style={styles.repMenu}>
-                {item.repMenuName} 외 {menuNum - 1}개 {item.totalPrice}원
+      <View>
+        <View style={styles.history}>
+          <View style={styles.historyTop}>
+            {today.getFullYear() === date.getFullYear() ? (
+              <Text>
+                {date.getMonth() + 1}월 {date.getDay()}일
               </Text>
             ) : (
-              <Text style={styles.repMenu}>
-                {item.repMenuName} {item.totalPrice}원
+              <Text>
+                {date.getFullYear()}일 {date.getMonth()}월 {date.getDay()}일
               </Text>
             )}
+
+            <Pressable
+              style={styles.toDetail}
+              onPress={() => {
+                navigation.navigate('HistoryDetailPage', {
+                  historyId: item.historyId,
+                });
+              }}>
+              <Text>주문상세</Text>
+            </Pressable>
+          </View>
+
+          <View style={styles.historyBottom}>
+            <Image
+              style={styles.storeImg}
+              source={require('../assets/bbq_chicken.png')}
+            />
+
+            <View style={styles.historyBottomRight}>
+              <Pressable style={styles.toStore}>
+                <Text style={styles.toStoreText}>{item.storeName}</Text>
+                <AntDesign name="right" />
+              </Pressable>
+
+              {menuNum > 1 ? (
+                <Text>
+                  {item.repMenuName} 외 {menuNum - 1}개 {item.totalPrice}원
+                </Text>
+              ) : (
+                <Text>
+                  {item.repMenuName} {item.totalPrice}원
+                </Text>
+              )}
+            </View>
           </View>
         </View>
+        <Pressable
+          style={styles.toReview}
+          onPress={() => {
+            navigation.navigate('WriteReviewPage', {
+              historyId: item.historyId,
+              storeId: item.storeId,
+              storeName: item.storeName,
+              repMenuName: item.repMenuName,
+              menuIds: item.menuIds,
+            });
+          }}>
+          <Octicons name="pencil" size={17} />
+          <Text style={styles.toReviewText}>리뷰 작성하기</Text>
+        </Pressable>
       </View>
     );
   };
@@ -145,15 +161,13 @@ const styles = StyleSheet.create({
     width: Dimensions.get('window').width,
     paddingVertical: 15,
     paddingHorizontal: 15,
-    borderBottomWidth: 0.5,
-    borderBottomColor: '#E8E8E8',
   },
   historyTop: {
     flexDirection: 'row',
     justifyContent: 'space-between',
     alignItems: 'center',
   },
-  passedDate: {},
+
   toDetail: {
     borderWidth: 1,
     borderRadius: 12,
@@ -161,7 +175,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 5,
     paddingVertical: 5,
   },
-  toDetailText: {},
 
   historyBottom: {
     flexDirection: 'row',
@@ -186,8 +199,21 @@ const styles = StyleSheet.create({
     marginRight: 5,
     fontSize: 17,
   },
-  toStoreIcon: {},
-  repMenu: {},
+
+  toReview: {
+    flexDirection: 'row',
+    width: Dimensions.get('window').width,
+    justifyContent: 'center',
+    alignItems: 'center',
+    paddingVertical: 12,
+    borderTopWidth: 0.5,
+    borderBottomWidth: 0.5,
+    borderTopColor: '#e8e8e8',
+    borderBottomColor: '#e8e8e8',
+  },
+  toReviewText: {
+    marginLeft: 5,
+  },
 });
 
 export default HistoryPage;

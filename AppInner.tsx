@@ -24,6 +24,7 @@ import StoresPage from './src/pages/StoresPage';
 import PayPage from './src/pages/PayPage';
 import HistoryPage from './src/pages/Historypage';
 import HistoryDetailPage from './src/pages/HistoryDetailPage';
+import WriteReviewPage from './src/pages/WriteReviewPage';
 
 const Stack = createNativeStackNavigator();
 
@@ -49,6 +50,13 @@ export type LoggedInParamList = {
   HistoryPage: undefined;
   HistoryDetailPage: {
     historyId: number;
+  };
+  WriteReviewPage: {
+    historyId: number;
+    storeName: string;
+    storeId: number;
+    repMenuName: string;
+    menuIds: string;
   };
 };
 
@@ -178,6 +186,7 @@ function AppInner() {
             name="HistoryDetailPage"
             component={HistoryDetailPage}
           />
+          <Stack.Screen name="WriteReviewPage" component={WriteReviewPage} />
         </Stack.Navigator>
       ) : (
         <Stack.Navigator
