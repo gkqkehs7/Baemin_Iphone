@@ -56,11 +56,11 @@ const HistoryPage = ({navigation}: HistoryPageProps) => {
           <View style={styles.historyTop}>
             {today.getFullYear() === date.getFullYear() ? (
               <Text>
-                {date.getMonth() + 1}월 {date.getDay()}일
+                {date.getMonth() + 1}월 {date.getDate()}일
               </Text>
             ) : (
               <Text>
-                {date.getFullYear()}일 {date.getMonth()}월 {date.getDay()}일
+                {date.getFullYear()}일 {date.getMonth()}월 {date.getDate()}일
               </Text>
             )}
 

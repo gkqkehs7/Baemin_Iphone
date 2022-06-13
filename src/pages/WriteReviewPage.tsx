@@ -11,6 +11,8 @@ import {
   Image,
   Dimensions,
 } from 'react-native';
+import axios from 'axios';
+import Config from 'react-native-config';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import ImagePicker from 'react-native-image-crop-picker';
 import ImageResizer from 'react-native-image-resizer';
@@ -22,6 +24,7 @@ import {RootState} from '../store/reducer';
 import {check, PERMISSIONS, RESULTS} from 'react-native-permissions';
 import SimpleLineIcons from 'react-native-vector-icons/SimpleLineIcons';
 import Ionicons from 'react-native-vector-icons/Ionicons';
+
 type WriteReviewPageProps = NativeStackScreenProps<
   LoggedInParamList,
   'WriteReviewPage'
@@ -33,21 +36,6 @@ type Iimage = {
 
 const WriteReviewPage = ({navigation, route}: WriteReviewPageProps) => {
   const accessToken = useSelector((state: RootState) => state.user.accessToken);
-
-  useEffect(() => {
-    // axios
-    //   .post(
-    //     `${Config.API_URL}/api/user/getHistories`,
-    //     {},
-    //     {
-    //       headers: {authorization: `${accessToken}`},
-    //     },
-    //   )
-    //   .then(response => {
-    //     console.log(response.data);
-    //     setHistories(response.data);
-    //   });
-  }, [accessToken]);
 
   const [starCount, setStarCount] = useState(0);
 
@@ -63,7 +51,6 @@ const WriteReviewPage = ({navigation, route}: WriteReviewPageProps) => {
 
   const uploadPhoto = useCallback(
     async response => {
-      console.log(response.width, response.height, response.exif);
       setImages([
         ...images,
         {uri: `data:${response.mime};base64,${response.data}`},
@@ -78,14 +65,23 @@ const WriteReviewPage = ({navigation, route}: WriteReviewPageProps) => {
         response.mime.includes('jpeg') ? 'JPEG' : 'PNG',
         100,
         0,
-      ).then(r => {
-        console.log(r.uri, r.name);
+      ).then(async r => {
+        const formData = new FormData();
+        formData.append('image', {
+          uri: r.uri,
+          name: r.name,
+          type: response.mime,
+        });
 
-        // setImage({
-        //   uri: r.uri,
-        //   name: r.name,
-        //   type: response.mime,
-        // });
+        formData.append('historyId', route.params.historyId);
+
+        await axios.post(
+          `${Config.API_URL}/api/review/reviewImages`,
+          formData,
+          {
+            headers: {authorization: `${accessToken}`},
+          },
+        );
       });
     },
     [images],
