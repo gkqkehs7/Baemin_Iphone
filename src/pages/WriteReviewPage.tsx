@@ -1,4 +1,4 @@
-import React, {useCallback, useEffect, useState} from 'react';
+import React, {useCallback, useState} from 'react';
 import {
   StyleSheet,
   Text,
@@ -10,6 +10,7 @@ import {
   Linking,
   Image,
   Dimensions,
+  ActivityIndicator,
 } from 'react-native';
 import axios from 'axios';
 import Config from 'react-native-config';
@@ -36,11 +37,12 @@ type Iimage = {
 
 const WriteReviewPage = ({navigation, route}: WriteReviewPageProps) => {
   const accessToken = useSelector((state: RootState) => state.user.accessToken);
-
-  const [starCount, setStarCount] = useState(0);
-
-  const [images, setImages] = useState<Iimage[]>([]);
   const [content, setContent] = useState('');
+  const [starCount, setStarCount] = useState(0);
+  const [images, setImages] = useState<Iimage[]>([]);
+  const [s3ImagesPath, setS3ImagesPath] = useState<Iimage[]>([]);
+  const [loading, setLoading] = useState(false);
+
   const onStarRatingPress = useCallback((rating: number) => {
     setStarCount(rating);
   }, []);
@@ -66,6 +68,7 @@ const WriteReviewPage = ({navigation, route}: WriteReviewPageProps) => {
         100,
         0,
       ).then(async r => {
+        setLoading(true);
         const formData = new FormData();
         formData.append('image', {
           uri: r.uri,
@@ -73,21 +76,19 @@ const WriteReviewPage = ({navigation, route}: WriteReviewPageProps) => {
           type: response.mime,
         });
 
-        formData.append('historyId', route.params.historyId);
-
-        await axios.post(
-          `${Config.API_URL}/api/review/reviewImages`,
-          formData,
-          {
+        await axios
+          .post(`${Config.API_URL}/api/review/reviewImages`, formData, {
             headers: {authorization: `${accessToken}`},
-          },
-        );
+          })
+          .then(response => {
+            setS3ImagesPath([...s3ImagesPath, {path: response.data.filePath}]);
+            setLoading(false);
+          });
       });
     },
-    [images],
+    [accessToken, images, s3ImagesPath],
   );
 
-  console.log(images.length);
   const toPhoto = () => {
     check(PERMISSIONS.IOS.PHOTO_LIBRARY).then(result => {
       if (result === RESULTS.DENIED) {
@@ -127,6 +128,47 @@ const WriteReviewPage = ({navigation, route}: WriteReviewPageProps) => {
     });
   };
 
+  const onSubmit = useCallback(async () => {
+    if (loading) {
+      return;
+    }
+
+    if (content.trim() === '') {
+      return Alert.alert('알림', '리뷰 글을 작성해주세요!');
+    }
+    if (starCount === 0) {
+      return Alert.alert('알림', '별점을 매겨주세요!');
+    }
+
+    await axios
+      .post(
+        `${Config.API_URL}/api/review/writeReview`,
+        {
+          star: starCount,
+          content: content,
+          s3ImagesPath: s3ImagesPath,
+          storeId: route.params.storeId,
+          historyId: route.params.historyId,
+        },
+        {
+          headers: {authorization: `${accessToken}`},
+        },
+      )
+      .then(response => {
+        Alert.alert('알림', '리뷰 작성이 완료 되었습니다');
+        navigation.navigate('LandingPage');
+      });
+  }, [
+    accessToken,
+    content,
+    route.params.historyId,
+    route.params.storeId,
+    s3ImagesPath,
+    starCount,
+    loading,
+    navigation,
+  ]);
+
   return (
     <SafeAreaView style={{backgroundColor: 'white', flex: 1}}>
       <View style={styles.top}>
@@ -155,6 +197,7 @@ const WriteReviewPage = ({navigation, route}: WriteReviewPageProps) => {
 
       <View style={styles.content}>
         <TextInput
+          value={content}
           multiline={true}
           maxLength={200}
           placeholder="리뷰를 작성해주세요!"
@@ -185,8 +228,12 @@ const WriteReviewPage = ({navigation, route}: WriteReviewPageProps) => {
       </View>
 
       <View style={{alignItems: 'center'}}>
-        <Pressable style={styles.reviewComplete}>
-          <Text style={styles.reviewCompleteText}>작성 완료</Text>
+        <Pressable style={styles.reviewComplete} onPress={onSubmit}>
+          {loading ? (
+            <ActivityIndicator color="white" />
+          ) : (
+            <Text style={styles.reviewCompleteText}>작성 완료</Text>
+          )}
         </Pressable>
       </View>
     </SafeAreaView>
