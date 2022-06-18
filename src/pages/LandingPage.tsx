@@ -6,6 +6,7 @@ import {
   StyleSheet,
   TextInput,
   SafeAreaView,
+  Dimensions,
 } from 'react-native';
 
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
@@ -43,7 +44,7 @@ function LandingPage({navigation}: LandingPageProps) {
         </View>
       </View>
 
-      <View>
+      <View style={{}}>
         <View style={styles.search}>
           <TextInput style={styles.searchInput} />
           <Feather
@@ -54,16 +55,27 @@ function LandingPage({navigation}: LandingPageProps) {
           />
         </View>
 
-        <CategoriesRecommend />
-        <Cateogories />
+        {/* <Cateogories /> */}
       </View>
+      <CategoriesRecommend />
 
-      <Pressable
-        onPress={() => {
-          navigation.navigate('HistoryPage');
-        }}>
-        <Text>주문 내역</Text>
-      </Pressable>
+      <View style={{backgroundColor: 'white', alignItems: 'center'}}>
+        <Pressable
+          style={styles.toOrder}
+          onPress={() => {
+            navigation.navigate('StoresPage');
+          }}>
+          <Text style={styles.toOrderText}>주문하기</Text>
+        </Pressable>
+
+        <Pressable
+          style={styles.toHistory}
+          onPress={() => {
+            navigation.navigate('HistoryPage');
+          }}>
+          <Text style={styles.toHistoryText}>주문 내역</Text>
+        </Pressable>
+      </View>
     </SafeAreaView>
   );
 }
@@ -104,6 +116,41 @@ const styles = StyleSheet.create({
     position: 'absolute',
     left: 16,
     top: 9,
+  },
+
+  toOrder: {
+    justifyContent: 'flex-end',
+    alignItems: 'flex-end',
+    width: Dimensions.get('window').width * 0.95,
+    height: 100,
+    borderRadius: 5,
+    borderWidth: 5,
+    borderColor: '#00dbc5',
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+  },
+
+  toOrderText: {
+    fontSize: 20,
+    fontWeight: '700',
+  },
+
+  toHistory: {
+    marginTop: 10,
+    justifyContent: 'flex-end',
+    alignItems: 'flex-end',
+    width: Dimensions.get('window').width * 0.95,
+    height: 70,
+    borderRadius: 5,
+    borderWidth: 5,
+    borderColor: '#00dbc5',
+    paddingHorizontal: 10,
+    paddingVertical: 10,
+  },
+
+  toHistoryText: {
+    fontSize: 20,
+    fontWeight: '700',
   },
 
   myLocationModal: {

@@ -57,6 +57,12 @@ const userSlice = createSlice({
         state.cart.splice(index, 1);
       }
     },
+
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    deleteAllCart(state, action) {
+      console.log('다 지워라');
+      state.cart = [];
+    },
   },
 });
 

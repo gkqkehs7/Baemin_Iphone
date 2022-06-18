@@ -1,5 +1,6 @@
 import React, {useCallback, useEffect, useState} from 'react';
 import {
+  Dimensions,
   Image,
   Pressable,
   SafeAreaView,
@@ -18,6 +19,7 @@ import {LoggedInParamList} from '../../AppInner';
 import {IStoreData} from '../types/db';
 import {useSelector} from 'react-redux';
 import {RootState} from '../store/reducer';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 // import {useAppDispatch} from '../../store';
 // import storeSlice from '../../slices/store';
 
@@ -66,6 +68,19 @@ const StoresPage = () => {
   console.log(storeData);
   return (
     <SafeAreaView style={styles.storeContainer}>
+      <View style={styles.top}>
+        <Text style={styles.topText}>주문하기</Text>
+        <Pressable style={styles.backIcon}>
+          <Ionicons
+            name="arrow-back"
+            size={20}
+            onPress={() => {
+              navigation.goBack();
+            }}
+          />
+        </Pressable>
+      </View>
+
       <FlatList data={storeData} renderItem={renderItem} />
 
       <Pressable
@@ -86,7 +101,24 @@ const StoresPage = () => {
 };
 
 const styles = StyleSheet.create({
-  container: {},
+  top: {
+    width: Dimensions.get('window').width,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingVertical: 15,
+    paddingHorizontal: 15,
+    borderBottomWidth: 0.5,
+    borderBottomColor: '#e8e8e8',
+  },
+  topText: {
+    fontSize: 15,
+    fontWeight: '700',
+  },
+  backIcon: {
+    position: 'absolute',
+    left: 15,
+    botoom: 15,
+  },
 
   storeContainer: {
     flex: 1,

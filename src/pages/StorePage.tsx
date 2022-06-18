@@ -1,3 +1,4 @@
+import {NavigationContainer} from '@react-navigation/native';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import axios from 'axios';
 import React, {useCallback, useEffect, useState} from 'react';
@@ -16,14 +17,13 @@ import AntDesign from 'react-native-vector-icons/AntDesign';
 import {useSelector} from 'react-redux';
 import {LoggedInParamList} from '../../AppInner';
 import Menues from '../components/StorePage/Menues';
+import Reviews from '../components/StorePage/Reviews';
 import {RootState} from '../store/reducer';
 
 type StorePageProps = NativeStackScreenProps<LoggedInParamList, 'StorePage'>;
 const StorePage = ({route, navigation}: StorePageProps) => {
   const accessToken = useSelector((state: RootState) => state.user.accessToken);
   const cart = useSelector((state: RootState) => state.user.cart);
-
-  console.log(cart.length);
 
   const {storeId} = route.params;
   const [storeData, setStoreData] = useState({
@@ -36,8 +36,8 @@ const StorePage = ({route, navigation}: StorePageProps) => {
   });
   const [menuData, setMenuData] = useState([]);
   const [isFollow, setIsFollow] = useState(false);
+  const [swipe, setSwipe] = useState(false);
 
-  console.log(isFollow);
   useEffect(() => {
     axios
       .get(`${Config.API_URL}/api/store/getStore/${storeId}`, {
@@ -50,7 +50,6 @@ const StorePage = ({route, navigation}: StorePageProps) => {
       });
   }, [storeId, accessToken]);
 
-  console.log(storeData);
   const follow = useCallback(async () => {
     if (isFollow) {
       await axios
@@ -84,6 +83,10 @@ const StorePage = ({route, navigation}: StorePageProps) => {
         });
     }
   }, [accessToken, storeData, isFollow]);
+
+  const swiping = useCallback(() => {
+    setSwipe(!swipe);
+  }, [swipe]);
 
   return (
     <View>
@@ -141,7 +144,24 @@ const StorePage = ({route, navigation}: StorePageProps) => {
           </View>
         </View>
 
-        <Menues menuData={menuData} storeData={storeData} />
+        <View style={styles.swipe}>
+          <Pressable
+            style={swipe ? styles.whenReviewMenu : styles.whenMenuMenu}
+            onPress={swiping}>
+            <Text style={styles.swipeText}>메뉴</Text>
+          </Pressable>
+          <Pressable
+            style={swipe ? styles.whenReviewReView : styles.whenMenuReview}
+            onPress={swiping}>
+            <Text style={styles.swipeText}>리뷰</Text>
+          </Pressable>
+        </View>
+
+        {swipe ? (
+          <Reviews storeId={storeId} />
+        ) : (
+          <Menues menuData={menuData} storeData={storeData} />
+        )}
       </ScrollView>
 
       <Pressable
@@ -232,6 +252,50 @@ const styles = StyleSheet.create({
     marginVertical: 5,
   },
 
+  swipe: {
+    flexDirection: 'row',
+    backgroundColor: 'white',
+
+    width: Dimensions.get('window').width,
+  },
+  swipeBtn: {
+    borderTopWidth: 2,
+    borderTopColor: 'black',
+    alignItems: 'center',
+    paddingVertical: 20,
+    flex: 1,
+  },
+
+  whenMenuMenu: {
+    flex: 1,
+    borderTopWidth: 3,
+    borderTopColor: 'black',
+    alignItems: 'center',
+    paddingVertical: 20,
+  },
+  whenMenuReview: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: 20,
+    borderLeftWidth: 0.2,
+    borderBottomWidth: 0.2,
+  },
+  whenReviewReView: {
+    flex: 1,
+    borderTopWidth: 3,
+    borderTopColor: 'black',
+    alignItems: 'center',
+    paddingVertical: 20,
+  },
+  whenReviewMenu: {
+    flex: 1,
+    alignItems: 'center',
+    paddingVertical: 20,
+    borderRightWidth: 0.2,
+    borderBottomWidth: 0.2,
+  },
+
+  swipeText: {},
   cartNum: {
     position: 'absolute',
     bottom: 30,
@@ -261,3 +325,6 @@ const styles = StyleSheet.create({
 });
 
 export default StorePage;
+function createBottomTabNavigator() {
+  throw new Error('Function not implemented.');
+}

@@ -6,34 +6,32 @@ import {
   View,
   SafeAreaView,
   Dimensions,
+  Alert,
 } from 'react-native';
 
 import Ionicons from 'react-native-vector-icons/Ionicons';
 import {NativeStackScreenProps} from '@react-navigation/native-stack';
 import {LoggedInParamList} from '../../AppInner';
-import {useSelector} from 'react-redux';
+import {useDispatch, useSelector} from 'react-redux';
 import {RootState} from '../store/reducer';
 import axios from 'axios';
 import Config from 'react-native-config';
 import {ICartData} from '../types/slice';
+import userSlice from '../slices/user';
 
 type PayPageProps = NativeStackScreenProps<LoggedInParamList, 'PayPage'>;
 
 const PayPage = ({navigation, route}: PayPageProps) => {
   const accessToken = useSelector((state: RootState) => state.user.accessToken);
   const cart = useSelector((state: RootState) => state.user.cart);
-
   const {totalPrice} = route.params;
+  const dispatch = useDispatch();
 
-  console.log(cart);
   const payAll = useCallback(async () => {
     let menuIds: number[] = [];
     cart.forEach((item: ICartData) => {
       menuIds.push(item.menuId);
     });
-
-    console.log(accessToken);
-
     await axios
       .post(
         `${Config.API_URL}/api/user/pay`,
@@ -47,9 +45,11 @@ const PayPage = ({navigation, route}: PayPageProps) => {
         },
       )
       .then(response => {
-        console.log(response);
+        dispatch(userSlice.actions.deleteAllCart());
+        Alert.alert('주문완료 되었습니다');
+        return navigation.navigate('LandingPage');
       });
-  }, [accessToken, cart, totalPrice]);
+  }, [accessToken, cart, totalPrice, dispatch, navigation]);
   return (
     <SafeAreaView style={{backgroundColor: 'white', flex: 1}}>
       <View style={styles.top}>

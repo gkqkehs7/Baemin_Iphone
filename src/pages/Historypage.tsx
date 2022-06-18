@@ -29,6 +29,7 @@ const HistoryPage = ({navigation}: HistoryPageProps) => {
   const accessToken = useSelector((state: RootState) => state.user.accessToken);
   const [histories, setHistories] = useState([]);
 
+  console.log(histories);
   useEffect(() => {
     axios
       .post(
@@ -48,10 +49,13 @@ const HistoryPage = ({navigation}: HistoryPageProps) => {
     const date = new Date(item.time);
     const today = new Date();
 
+    const canReview =
+      (today.getTime() - date.getTime()) / (1000 * 60 * 60 * 24);
+    console.log(parseInt(canReview, 10));
     const menuNum = item.menuIds.split(',').length;
 
     return (
-      <View>
+      <View style={{backgroundColor: 'white'}}>
         <View style={styles.history}>
           <View style={styles.historyTop}>
             {today.getFullYear() === date.getFullYear() ? (
@@ -84,7 +88,6 @@ const HistoryPage = ({navigation}: HistoryPageProps) => {
             <View style={styles.historyBottomRight}>
               <Pressable style={styles.toStore}>
                 <Text style={styles.toStoreText}>{item.storeName}</Text>
-                <AntDesign name="right" />
               </Pressable>
 
               {menuNum > 1 ? (
@@ -99,20 +102,25 @@ const HistoryPage = ({navigation}: HistoryPageProps) => {
             </View>
           </View>
         </View>
-        <Pressable
-          style={styles.toReview}
-          onPress={() => {
-            navigation.navigate('WriteReviewPage', {
-              historyId: item.historyId,
-              storeId: item.storeId,
-              storeName: item.storeName,
-              repMenuName: item.repMenuName,
-              menuIds: item.menuIds,
-            });
-          }}>
-          <Octicons name="pencil" size={17} />
-          <Text style={styles.toReviewText}>리뷰 작성하기</Text>
-        </Pressable>
+
+        {!item.reviewed && canReview < 4 && (
+          <Pressable
+            style={styles.toReview}
+            onPress={() => {
+              navigation.navigate('WriteReviewPage', {
+                historyId: item.historyId,
+                storeId: item.storeId,
+                storeName: item.storeName,
+                repMenuName: item.repMenuName,
+                menuIds: item.menuIds,
+              });
+            }}>
+            <Octicons name="pencil" size={17} />
+            <Text style={styles.toReviewText}>
+              리뷰 작성하기 ({3 - Math.floor(canReview)}일 남음)
+            </Text>
+          </Pressable>
+        )}
       </View>
     );
   };
@@ -161,6 +169,9 @@ const styles = StyleSheet.create({
     width: Dimensions.get('window').width,
     paddingVertical: 15,
     paddingHorizontal: 15,
+
+    borderBottomWidth: 0.5,
+    borderBottomColor: '#e8e8e8',
   },
   historyTop: {
     flexDirection: 'row',
@@ -207,9 +218,9 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingVertical: 12,
     borderTopWidth: 0.5,
+    borderTopColor: 'black',
     borderBottomWidth: 0.5,
-    borderTopColor: '#e8e8e8',
-    borderBottomColor: '#e8e8e8',
+    borderBottomColor: 'black',
   },
   toReviewText: {
     marginLeft: 5,
